@@ -177,7 +177,6 @@ app.get('/image', (req, res) => {
         }
     );
 
-
     const decoded = Buffer.from(_svg).toString('base64');
 
     const _url = `data:image/svg+xml;base64,${decoded}=` 

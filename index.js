@@ -166,7 +166,9 @@ app.get('/image', (req, res) => {
     context.fillStyle = FONT_COLOR;
     if (req.query.style === 'initials') {
         context.fillText(name || 'LM', 250, 250);
+
         res.end(canvas.toBuffer("image/png"));
+        
         return;
     }
 
@@ -175,7 +177,7 @@ app.get('/image', (req, res) => {
         {
             "Content-Type": "image/png",
         }
-    );
+    )
 
     const decoded = Buffer.from(_svg).toString('base64');
 

@@ -7,27 +7,27 @@ const {
 } = require('canvas');
 
 function adjust(col, amt) {
-        col = col.replace(/^#/, '')
-        if (col.length === 3) col = col[0] + col[0] + col[1] + col[1] + col[2] + col[2]
-      
-        let [r, g, b] = col.match(/.{2}/g);
-        ([r, g, b] = [parseInt(r, 16) + amt, parseInt(g, 16) + amt, parseInt(b, 16) + amt])
-      
-        r = Math.max(Math.min(255, r), 0).toString(16)
-        g = Math.max(Math.min(255, g), 0).toString(16)
-        b = Math.max(Math.min(255, b), 0).toString(16)
-      
-        const rr = (r.length < 2 ? '0' : '') + r
-        const gg = (g.length < 2 ? '0' : '') + g
-        const bb = (b.length < 2 ? '0' : '') + b
-      
-        return `#${rr}${gg}${bb}`
+    col = col.replace(/^#/, '')
+    if (col.length === 3) col = col[0] + col[0] + col[1] + col[1] + col[2] + col[2]
+
+    let [r, g, b] = col.match(/.{2}/g);
+    ([r, g, b] = [parseInt(r, 16) + amt, parseInt(g, 16) + amt, parseInt(b, 16) + amt])
+
+    r = Math.max(Math.min(255, r), 0).toString(16)
+    g = Math.max(Math.min(255, g), 0).toString(16)
+    b = Math.max(Math.min(255, b), 0).toString(16)
+
+    const rr = (r.length < 2 ? '0' : '') + r
+    const gg = (g.length < 2 ? '0' : '') + g
+    const bb = (b.length < 2 ? '0' : '') + b
+
+    return `#${rr}${gg}${bb}`
     // return '#' + color?.replace(/^#/, '')?.replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
 }
 
 const stringToColor = (str) => {
     let hash = 0;
-    for (var i = 0; i < str?.length; i++) {
+    for (let i = 0; i < str?.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
     let colour = '#';
@@ -38,46 +38,54 @@ const stringToColor = (str) => {
     return colour;
 }
 
-const pickTextColorBasedOnBgColorAdvanced = function(bgColor) {
+const pickTextColorBasedOnBgColorAdvanced = function (bgColor) {
     let color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
     let r = parseInt(color.substring(0, 2), 16); // hexToR
     let g = parseInt(color.substring(2, 4), 16); // hexToG
     let b = parseInt(color.substring(4, 6), 16); // hexToB
     let uicolors = [r / 255, g / 255, b / 255];
     let c = uicolors.map((col) => {
-      if (col <= 0.03928) {
-        return col / 12.92;
-      }
-      return Math.pow((col + 0.055) / 1.055, 2.4);
+        if (col <= 0.03928) {
+            return col / 12.92;
+        }
+        return Math.pow((col + 0.055) / 1.055, 2.4);
     });
     let L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
     return (L > 0.179) ? '#000' : '#fff';
 }
 
-function hexToHSL(hex, name) { 
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      r = parseInt(result[1], 16);
-      g = parseInt(result[2], 16);
-      b = parseInt(result[3], 16);
-      r /= 255, g /= 255, b /= 255;
-      var max = Math.max(r, g, b), min = Math.min(r, g, b);
-      var h, s, l = (max + min) / 2;
-      if(max == min){
+function hexToHSL(hex, name) {
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    let r = parseInt(result[1], 16);
+    let g = parseInt(result[2], 16);
+    let b = parseInt(result[3], 16);
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    if (max === min) {
         h = s = 0; // achromatic
-      }else{
-        var d = max - min;
+    } else {
+        let d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch(max){
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
+        switch (max) {
+            case r:
+                h = (g - b) / d + (g < b ? 6 : 0);
+                break;
+            case g:
+                h = (b - r) / d + 2;
+                break;
+            case b:
+                h = (r - g) / d + 4;
+                break;
         }
         h /= 6;
-      }
-    var HSL = new Object();
-    HSL['h']= Math.floor(h * 100) + name.length;
-    HSL['s']= Math.floor(s * 100) + name.length;
-    HSL['l']= 90
+    }
+    let HSL = {};
+    HSL['h'] = Math.floor(h * 100) + name.length;
+    HSL['s'] = Math.floor(s * 100) + name.length;
+    HSL['l'] = 90
     return `hsl(${HSL['h']}, ${HSL['s']}% ${HSL['l']}%)`;
 }
 
@@ -130,7 +138,8 @@ app.get('/image', (req, res) => {
         </svg> 
         `
     ];
-    const _svg = DATA_SVG[(req.query.name.charCodeAt(1) + req.query.name.charCodeAt(0)) % DATA_SVG.length]
+    const _name = Buffer.from(req.query.name).toString('base64');
+    const _svg = DATA_SVG[((_name.length) + (req.query.name.charCodeAt(0))) % DATA_SVG.length]
 
     const width = 500 // width of the image
     const height = 500 // height of the image
@@ -144,7 +153,7 @@ app.get('/image', (req, res) => {
     context.arc(250, 250, 240, 0, 2 * Math.PI);
     context.fill();
 
-    var gradient = context.createRadialGradient(250, 250, 240, 0, 0, 2 * Math.PI);
+    let gradient = context.createRadialGradient(250, 250, 240, 0, 0, 2 * Math.PI);
 
     gradient.addColorStop(.5, HSLja);
     gradient.addColorStop(1, HSLja);
@@ -168,7 +177,7 @@ app.get('/image', (req, res) => {
         context.fillText(name || 'LM', 250, 250);
 
         res.end(canvas.toBuffer("image/png"));
-        
+
         return;
     }
 
@@ -181,18 +190,17 @@ app.get('/image', (req, res) => {
 
     const decoded = Buffer.from(_svg).toString('base64');
 
-    const _url = `data:image/svg+xml;base64,${decoded}=` 
+    const _url = `data:image/svg+xml;base64,${decoded}=`
 
     const img = new Image()
     const _num = 700;
-    var scale = Math.min(width / _num, height / _num);
-    var w = (_num/2) * scale;
-    var h = (_num/2) * scale;
-    var left = width / 2 - w / 2;
-    var top = height / 2 - h / 2;
-    console.log(HSLja);
-    img.onload = function() {
-        context.drawImage(img, left, top, w, h); 
+    let scale = Math.min(width / _num, height / _num);
+    let w = (_num / 2) * scale;
+    let h = (_num / 2) * scale;
+    let left = width / 2 - w / 2;
+    let top = height / 2 - h / 2;
+    img.onload = function () {
+        context.drawImage(img, left, top, w, h);
         res.end(canvas.toBuffer("image/png"));
     }
     img.src = _url;
